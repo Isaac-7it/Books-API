@@ -61,6 +61,7 @@ operable program or batch file.`. In that case, run `python -m uvicorn filename:
 
 ## PATH PARAMETERS
 + Path Parameters are request parameter that has been attached to the URL
++ Path parameters are placeholder variables embedded within the URL path of a route. They enable you to capture dynamic segments of the URL, which can then be used within the function handling that route
 + They are usually defined as a way to find information based on a location
 + Path Parameters can be Static or Dynamic
 + Static Path Parameters are path parameters that requires no parameter for the endpoint to be accessible. The following codes demonstrate Static Path Parameter
@@ -111,4 +112,60 @@ Observe that in this example, the parameter `query` will be the query. Now, if e
 ## POST REQUEST METHOD
 + The POST request method is used to send data to a server to create a new resource or trigger an action
 + The POST request can have a request body containing the information to be sent to the sever. 
-+ An HTTP body is the optional payload or data section of an HTTP request or response message that carries the actual content being transferred between a client and a server
++ An HTTP body is the optional payload or data section of an HTTP request or response message that carries the actual content being transferred between a client and a server. Basically, GET requests do not have request body
++ Consider this POST request example
+```python
+from fastapi import Body, FastAPI
+
+app = FastAPI()
+
+@app.post('/create')
+async def create_stuff(message=Body()):
+    return message
+```
+How it works:
+  + `from fastapi import Body, FastAPI` imports the `FastAPI` and `Body` class from the `fastapi` module
+  + `app = FastAPI()` creates your `FastAPI` application
+  + `@app.post('/create')` registers an endpoint that responds to HTTP POST requests sent to `/create`.
+  + `async def create_stuff(message=Body())` ==> Here; 
+    + the `message` parameter receives data from the request
+    + the `Body()` class tells FastAPI to look for that data in the HTTP request body
+  + `return message` returns whatever is passed into the function. The endpoint is currently an echo endpoint i.e it sends the received data back to the client rather than saving it to a database.
++ Now, suppose you send this JSON data via the request body to `/create`
+```json
+{
+  "name": "Isaac",
+  "age": 18,
+  "department": "Mathematics"
+}
+```
+FastAPI reads the JSON body and assigns the resulting Python dictionary to message and returns this dictionary
++ !!! NOTE: When passing in JSON via the request body, use double quotation not single quotation
+
+## PUT HTTP REQUEST METHOD
++ The `PUT` request is used to update data on the server
++ It also has a request body like the `POST` request
++ Consider this as an example
+```python
+from fastapi import Body, FastAPI
+
+app = FastAPI()
+
+@app.put('/update/')
+async def update(key=Body()):
+    // code to modify
+```
+
+## DELETE HTTP REQUEST METHOD
++ The DELETE HTTP method is used tp delete data on the web server
++ Consider this as an example
+```python
+from fastapi import Body, FastAPI
+
+app = FastAPI()
+
+@app.delete('/update/{key}')
+async def delete(key):
+    // code to delete
+```
++ !!!NOTE: You cannot define two separate functions with the exact same HTTP method
