@@ -18,11 +18,22 @@ class Book:
         self.rating = rating
 
 class BookRequest(BaseModel):
-    id: Optional[int] = None
+    id: Optional[int] = Field(description="ID is not needed on create", default=None)
     title: str = Field(min_length=3)
     author: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=100)
     rating: int = Field(gt=-1, lt=6)
+
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "A new title",
+                "author": "A new author",
+                "description": "A new description",
+                "rating": 5
+            }
+        }
+    }
 
 BOOKS = [
     Book(1, "Computer Science Pro", "codingwithroby", "A very nice book!", 5),
@@ -37,6 +48,40 @@ BOOKS = [
 async def read_all_books():
     return BOOKS
 
+@app.get("/books/{id}")
+async def read_book_by_id(id: int):
+    for book in BOOKS:
+        if id == book.id:
+            return book
+    return None
+
+
+'''
+# Read book by id using Query Parameter
+@app.get("/books/book_id/")
+async def read_book_by_id(id: int):
+    for book in BOOKS:
+        if id == book.id:
+            return book
+    return None
+
+@app.get("/books/book_rating/")
+async def read_book_by_rating(rating: int):
+    books_to_return: list = []
+    for book in BOOKS:
+        if book.rating == rating:
+            books_to_return.append(book)
+    return books_to_return
+'''
+
+@app.get("/books/")
+async def read_book_by_rating(rating: int):
+    books_to_return: list = []
+    for book in BOOKS:
+        if book.rating == rating:
+            books_to_return.append(book)
+    return books_to_return
+
 @app.post("/create-book")
 async def create_book(book_request: BookRequest):
     new_book = Book(**book_request.model_dump())
@@ -45,3 +90,16 @@ async def create_book(book_request: BookRequest):
 def find_book_id(book: Book):
     book.id = BOOKS[-1].id + 1 if len(BOOKS) > 0 else 0
     return book
+
+@app.put("/books/update_book/")
+async def update_book(book: BookRequest):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i]= book
+
+@app.delete("/books/book_id/")
+async def delete_book(book_id: int):
+    for book in BOOKS:
+        if book.id == book_id:
+            BOOKS.remove(book)
+            break

@@ -1,4 +1,4 @@
-from dataclasses import Field
+from pydantic.json_schema import model_json_schemafrom email.policy import defaultfrom dataclasses import Fieldfrom dataclasses import Field
 
 ## Request & Response
 + A Web page sends a _request_ to the server while the server returns a _response_
@@ -244,4 +244,24 @@ from pydantic import BaseModel
 class BookRequest(BaseModel):
     id: Optional[int] = None
 ```
-In this case, the `id` property can either be of type integer or type `None`
+In this case, the `id` property can either be of type integer or type `None`. Furthermore, a description can be added to our optional field as follows:
+```python
+from typing import Optional
+from pydantic import BaseModel
+
+class BookRequest(BaseModel):
+    id: Optional[int] = Field(description="ID is not needed on create", default=None)
+```
++ We can also modify the default payload FastAPI uses as data for our API using the `model_config`
+```python
+model_config = {
+    "json_schema_extra": {
+        "example": {
+            "title": "A new title",
+            "description": "A new description",
+            "author": "codingwithruby"
+        }
+    }
+}
+```
+This code must be in your Pydantic Model
