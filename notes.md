@@ -1,4 +1,4 @@
-from pydantic.json_schema import model_json_schemafrom email.policy import defaultfrom dataclasses import Fieldfrom dataclasses import Field
+from starlette import statusfrom pip._internal.cli import status_codesfrom operator import truedivfrom pydantic.json_schema import model_json_schemafrom email.policy import defaultfrom dataclasses import Fieldfrom dataclasses import Field
 
 ## Request & Response
 + A Web page sends a _request_ to the server while the server returns a _response_
@@ -265,3 +265,82 @@ model_config = {
 }
 ```
 This code must be in your Pydantic Model
+
+## Data Validation for Path Parameters
++ The `Path` class from the fastapi package helps us to validate path parameter. 
++ We use the Path class as follows
+```python
+from fastapi import FastAPI, Path
+# ...
+@app.get("/books/{book_id}")
+async def read_book_by_id(book_id: int = Path(gt=0)):
+    # code
+```
+For the above code, the dynamic path parameter is validated using the `Path` class which takes certain arguments that defines the validation. In this case, our application can only consume book ids that are greater than 0
+
+## Data Validation for Query Parameter
++ Just like the `Path`, the `Query` class helps us validate query parameter. It is used as follows
+```python
+from fastapi import FastAPI, Query
+# ...
+@app.get("/books/")
+async def read_book_by_rating(rating: int = Query(gt=0, lt=6)):
+    # code
+```
+Know that the validation for query parameter us very similar to that of path parameter
+
+## Status Codes
++ An HTTP status code is used to help the client (i.e the user or system submitting data to the server) to understand what happened on the server-side application
++ Common Status Codes are
+```aiignore
+1xx ====> Information Response: Request Processing
+2xx ====> Success: Request Successfully Complete
+3xx ====> Redirection: Further action must be complete
+4xx ====> Client Errors: An error caused by the client
+5xx ====> Server Errors: An error occurred on the server
+```
+### 2xx Successful Status Codes:
++ `200: OK` ==> Standard response for a successful request. Commonly used for successful Get requests when data is being returned
++ `201: Created` ==> the request successfully created a new resource. Used when a POST creates an entity
++ `204: No Content` ==> request has been successful but no resource is created or returned. Commonly used with PUT requests
+### 4xx Client Errors Status Codes
++ `400: Bad Request` ==> request cannot be processed due to client error. Commonly used for invalid request methods
++ `401: Unauthorized` ==> client does not have valid authentication for target resource
++ `404: Not Found` ==> client requested resource cannot be found
++ `422: Unprocessable entity` ==> semantic errors in the client request
+
+### 5xx Server Status Codes
++ `500: Internal Serval Error` ==> Generic error message when an unexoected issue on the server happened
+
+
+## HTTP Exceptions
++ HTTP Exception is something we need to raise within our method which will cancel the functionality of our method and return a message and status code back to our user
++ For example, suppose we want to raise an HTTP exception when a resource is not found
+
+```python
+from fastapi import HTTPException, FastAPI
+
+app = FastAPI
+
+@app.get("/path")
+async def fetch_resource():
+    not_found = True
+
+    if not_found:
+        raise HTTPException (status_code=404, detail="Resource not found!")
+```
+
+## Explicit Status Code Responses
++ We can explicitly return certain status codes based on the functionality of our endpoint. To be able to do this, we first need to import `status` from the `starlette` package. That is
+```python
+from starlette import status
+```
+FastAPI is built using `starlette`. So installing FastAPI implies the installation of `starlette`
++ Now, to implement this status code explicitly:
+```python
+@app.get("/path/", status_codes=status.HTTP_200_OK)
+# code
+```
+Thus, when the request to this endpoint is made, we get `200` as a status code for success
+
++ For filtering individual items, use Dynamic Path parameter. For filtering serval items, use Query Parameter
