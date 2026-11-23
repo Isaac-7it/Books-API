@@ -25,7 +25,7 @@ async def read_books_by_query(category: str):
 
     return books_to_return
 
-@app.get('/books/author/')
+@app.get('/books/byauthor/')
 async def fetch_book_by_author(author: str):
     filtered_books = []
 
@@ -40,14 +40,14 @@ async def fetch_book_by_author(author: str):
 
     return filtered_books
 
-@app.get('/books/{book_title}/')
+@app.get('/books/bytitle/{book_title}/')
 async def read_book(book_title: str):
     for book in BOOKS:
         if book['title'].casefold() == book_title.casefold():
             return book
     return {'message': 'Not found!'}
 
-@app.get('/books/{author}/')
+@app.get('/books/byauthor/{author}/')
 async def read_by_author_and_category(author: str, category: str):
     books_to_return = []
     for book in BOOKS:
